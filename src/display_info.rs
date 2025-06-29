@@ -27,6 +27,7 @@ impl DisplayInfo {
                 bus: unsafe { p.path.i2c_busno },
             },
             sys::DDCA_IO_Mode_DDCA_IO_USB => DisplayPath::USB {
+                // TODO should this include the usb_devuce/bus fields of the display_info?
                 hiddev_devno: unsafe { p.path.hiddev_devno },
             },
             _ => panic!("unknown IO mode! {0}", p.io_mode),

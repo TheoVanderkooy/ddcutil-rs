@@ -22,6 +22,23 @@ pub type DdcutilVersion = sys::DDCA_Ddcutil_Version_Spec;
 // Imports
 use std::ffi::CStr;
 
+
+/*
+TODO:
+ - setting vars uses display_handle
+    - display_handle: from open_display, which takes a display_ref
+    - display_ref: from get_display_ref, which take display_identifier, or get_display_refs, or get_display_info_list
+    - display_identifier: from create_*_display_identifier:
+        - display number
+        - I2C (?) bus number
+        - (manufacturer, model, serial #)
+        - edid?
+        - USB (bus, device) (both ints)
+        - hiddev_devno (https://github.com/torvalds/linux/blob/master/Documentation/hid/hiddev.rst)
+*/
+
+
+
 /*
 Types:
     Display info
@@ -60,18 +77,22 @@ Enums:
 // Settings:
 //   DDCA_DW_Settings
 
+
+
 /*
-ddca_init
-ddca_init2
+Functions TODO still: (excluding free_xyz functions)
+
+ddca_init (deprecated use v2 if 2.1+)
+ddca_init2  (2.1+ ... can we dynamically enable it? (or disable))
 
 ddca_enable_verify
 ddca_is_verify_enabled
-ddca_set_sleep_multiplier
-ddca_get_sleep_multiplier
+ddca_set_sleep_multiplier (deprecated)
+ddca_get_sleep_multiplier (deprecated)
 ddca_set_display_sleep_multiplier
 ddca_get_current_display_sleep_multiplier
-ddca_enable_dynamic_sleep
-ddca_is_dynamic_sleep_enabled
+ddca_enable_dynamic_sleep (2.1+)
+ddca_is_dynamic_sleep_enabled (2.1+)
 ddca_set_fout
 ddca_set_fout_to_default
 ddca_set_ferr
@@ -101,9 +122,9 @@ ddca_create_usb_display_identifier
 ddca_create_usb_hiddev_display_identifier
 
 ddca_did_repr
-ddca_create_display_ref
+ddca_create_display_ref (deprecated use `get`)
 ddca_get_display_ref
-ddca_validate_display_ref
+ddca_validate_display_ref (2.1+)
 ddca_dref_repr
 ddca_dbgrpt_display_ref
 
@@ -148,18 +169,19 @@ ddca_format_any_vcp_value_by_dref
 ddca_set_non_table_vcp_value
 ddca_set_table_vcp_value
 ddca_set_any_vcp_value
+
 ddca_get_profile_related_values
 ddca_set_profile_related_values
-ddca_register_display_status_callback
-ddca_unregister_display_status_callback
-ddca_display_event_class_name
-ddca_display_event_type_name
+ddca_register_display_status_callback (2.1+)
+ddca_unregister_display_status_callback (2.1+)
+ddca_display_event_class_name (2.1+)
+ddca_display_event_type_name (2.1+)
 
 ddca_start_watch_displays
-ddca_stop_watch_displays
+ddca_stop_watch_displays (2.1+)
 ddca_get_active_watch_classes
-ddca_get_display_watch_settings
-ddca_set_display_watch_settings
+ddca_get_display_watch_settings (2.2+)
+ddca_set_display_watch_settings (2.2+)
 */
 
 // misc utility functions

@@ -13,8 +13,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // generate & write bindings
     let bindings = bindgen::Builder::default()
         .clang_args(include_args)
+        // Keep docs on ddcutil methods
+        .clang_arg("-fretain-comments-from-system-headers")
         .header("src/sys/wrapper.h")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        // default to signed because all the error codes are negative
+        .default_macro_constant_type(bindgen::MacroTypeVariation::Signed)
         // only ddcutil functions/types, not stdlib stuff
         .allowlist_item(r"(DDC|ddc)\w*_.*")
         .generate()

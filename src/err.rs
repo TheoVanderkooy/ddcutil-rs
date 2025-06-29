@@ -48,7 +48,7 @@ impl DdcError {
     /// Otherwise this may panic if it is out of the valid range of error codes.
     pub(crate) unsafe fn check(rc: i32) -> Result<()> {
         match rc {
-            0 /*DDCRC_OK*/ => Ok(()),
+            sys::DDCRC_OK => Ok(()),
             rc => unsafe { Err(Self::from_rc(rc)) },
         }
     }
