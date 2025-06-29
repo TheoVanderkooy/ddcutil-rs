@@ -64,7 +64,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ddcutil-rs"
+name = "ddcutil"
 version = "0.1.0"
 dependencies = [
  "bindgen",

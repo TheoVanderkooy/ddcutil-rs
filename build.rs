@@ -15,6 +15,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .clang_args(include_args)
         .header("src/wrapper.h")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        // only ddcutil functions/types, not stdlib stuff
+        .allowlist_item(r"(DDC|ddc)\w*_.*")
         .generate()
         .expect("Bindgen error!");
 
