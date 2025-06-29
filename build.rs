@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // generate & write bindings
     let bindings = bindgen::Builder::default()
         .clang_args(include_args)
-        .header("src/wrapper.h")
+        .header("src/sys/wrapper.h")
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         // only ddcutil functions/types, not stdlib stuff
         .allowlist_item(r"(DDC|ddc)\w*_.*")
