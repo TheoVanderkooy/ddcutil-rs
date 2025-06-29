@@ -8,7 +8,7 @@ use crate::sys::{self};
 pub enum DisplayIdentifier<'a> {
     DisplayNumber(i32),
     I2cBus(i32),
-    /// TODO at least one must be non-None
+    /// At least one of manufacturer, model, serial must be non-none
     SerialNumber {
         manufacturer: Option<&'a str>,
         model: Option<&'a str>,
@@ -21,9 +21,6 @@ pub enum DisplayIdentifier<'a> {
     },
     UsbHid(i32),
 }
-
-// impl <'a> DisplayIdentifier<'a> {
-// }
 
 #[repr(transparent)]
 pub(crate) struct SysDisplayRef(pub(crate) sys::DDCA_Display_Ref);

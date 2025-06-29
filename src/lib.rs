@@ -54,7 +54,9 @@ pub fn lib_filename() -> &'static str {
     }
 }
 
-// TODO: convert flags to set of enum values?
-pub fn lib_build_flags() -> u32 {
-    unsafe { sys::ddca_build_options() as u32 }
+pub type BuildOptionFlags = sys::DDCA_Build_Option_Flags;
+
+/// Returns a bitfield of `BuildOptionFlags`
+pub fn lib_build_flags() -> BuildOptionFlags {
+    unsafe { sys::ddca_build_options() }
 }

@@ -21,6 +21,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .default_macro_constant_type(bindgen::MacroTypeVariation::Signed)
         // only ddcutil functions/types, not stdlib stuff
         .allowlist_item(r"(DDC|ddc)\w*_.*")
+        .bitfield_enum("DDCA_Build_Option_Flags|DDCA_Init_Options|DDCA_Output_Level|DDCA_Stats_Type|DDCA_Capture_Option_Flags")
+        .rustified_non_exhaustive_enum("DDCA_Syslog_Level|DDCA_Capture_Option_Flags|DDCA_IO_Mode")
+        .rustified_enum("DDCA_Vcp_Value_Type")
+        // 2.1+
+        .rustified_non_exhaustive_enum("DDCA_Display_Event_Type|DDCA_Display_Event_Class")
         .generate()
         .expect("Bindgen error!");
 

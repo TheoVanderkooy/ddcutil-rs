@@ -1,18 +1,4 @@
 
-/*
-TODO:
- - setting vars uses display_handle
-    - display_handle: from open_display, which takes a display_ref
-    - display_ref: from get_display_ref, which take display_identifier, or get_display_refs, or get_display_info_list
-    - display_identifier: from create_*_display_identifier:
-        - display number
-        - I2C (?) bus number
-        - (manufacturer, model, serial #)
-        - edid?
-        - USB (bus, device) (both ints)
-        - hiddev_devno (https://github.com/torvalds/linux/blob/master/Documentation/hid/hiddev.rst)
-*/
-
 
 
 /*

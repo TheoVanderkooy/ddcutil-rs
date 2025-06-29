@@ -24,14 +24,14 @@ impl DisplayInfo {
     pub fn path(&self) -> DisplayPath {
         let p = unsafe { *self.0 }.path;
         match p.io_mode {
-            sys::DDCA_IO_Mode_DDCA_IO_I2C => DisplayPath::I2C {
+            sys::DDCA_IO_Mode::DDCA_IO_I2C => DisplayPath::I2C {
                 bus: unsafe { p.path.i2c_busno },
             },
-            sys::DDCA_IO_Mode_DDCA_IO_USB => DisplayPath::USB {
+            sys::DDCA_IO_Mode::DDCA_IO_USB => DisplayPath::USB {
                 // TODO should this include the usb_devuce/bus fields of the display_info?
                 hiddev_devno: unsafe { p.path.hiddev_devno },
             },
-            _ => panic!("unknown IO mode! {0}", p.io_mode),
+            _ => panic!("Unknown IO mode {0:?}", p.io_mode),
         }
     }
 
