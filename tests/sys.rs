@@ -1,6 +1,6 @@
-use ddcutil::sys;
+use libddcutil2::sys;
 use std::ffi::CStr;
-use std::str;
+use std::{ptr, str};
 
 #[cfg(test)]
 
@@ -62,10 +62,10 @@ fn test_testing() {
             CStr::from_ptr(sys::ddca_rc_desc(ret))
         );
 
-        println!(
-            "  invalid rc: {0:?}",
-            CStr::from_ptr(sys::ddca_rc_name(-10000))
-        );
+        // println!(
+        //     "  invalid rc: {0:?}",
+        //     CStr::from_ptr(sys::ddca_rc_name(-10000))
+        // );
 
         // println!("ERROR: ");
         // println!("  marker={0}", as_str(&(*err).marker));
