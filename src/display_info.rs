@@ -1,6 +1,7 @@
 use core::str;
 
 use crate::MccsVersion;
+use crate::display::SysDisplayRef;
 use crate::err::*;
 use crate::str_field_getter;
 use crate::sys;
@@ -52,7 +53,9 @@ impl DisplayInfo {
         unsafe { *self.0 }.vcp_version
     }
 
-    // TODO expose dref?
+    pub(crate) fn dref(&self) -> crate::display::SysDisplayRef {
+        SysDisplayRef(unsafe { *self.0 }.dref)
+    }
 }
 
 impl Drop for DisplayInfo {
@@ -95,7 +98,7 @@ impl<'a> IntoIterator for &'a DisplayInfoList {
     }
 }
 
-pub fn get_display_info(include_invalid_displays: bool) -> Result<DisplayInfoList> {
+pub fn get_display_info_list(include_invalid_displays: bool) -> Result<DisplayInfoList> {
     let mut ret: *mut sys::DDCA_Display_Info_List = std::ptr::null_mut();
     unsafe {
         let rc = sys::ddca_get_display_info_list2(include_invalid_displays, &mut ret);

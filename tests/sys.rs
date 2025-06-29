@@ -1,5 +1,4 @@
 use libddcutil2::sys;
-use std::ffi::CStr;
 use std::{ptr, str};
 
 #[cfg(test)]
@@ -46,40 +45,9 @@ fn test_testing() {
                 "  vcp_version={0}.{1}",
                 info.vcp_version.major, info.vcp_version.minor
             );
-            println!("  dref={0:?}", info.dref); // = device number?
+            println!("  dref={0:?}", info.dref);
         }
-
-        let ret = sys::ddca_dfr_check_by_dref(0x3 as sys::DDCA_Display_Ref);
-
-        println!("\nGOT = {ret}");
-        let err = sys::ddca_get_error_detail();
-        println!("err={err:?}");
-        sys::ddca_report_error_detail(err, 1); // null :(
-
-        println!(
-            "  name={0:?}, desc={1:?}",
-            CStr::from_ptr(sys::ddca_rc_name(ret)),
-            CStr::from_ptr(sys::ddca_rc_desc(ret))
-        );
-
-        // println!(
-        //     "  invalid rc: {0:?}",
-        //     CStr::from_ptr(sys::ddca_rc_name(-10000))
-        // );
-
-        // println!("ERROR: ");
-        // println!("  marker={0}", as_str(&(*err).marker));
-        // println!("  status_code={0}", (*err).status_code);
-        // println!("  detail={0:?}", CStr::from_ptr((*err).detail));
-        // println!("  # causes={0}", (*err).cause_ct);
     }
 
     panic!("fail test to see output");
 }
-
-// use libddcutil2::str_field_getter;
-// struct Example(*mut sys::DDCA_Display_Info);
-
-// impl Example {
-//     str_field_getter!(a, sn);
-// }
