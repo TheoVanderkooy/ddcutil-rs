@@ -76,3 +76,10 @@ fn test_testing() {
 
     panic!("fail test to see output");
 }
+
+// use libddcutil2::str_field_getter;
+// struct Example(*mut sys::DDCA_Display_Info);
+
+// impl Example {
+//     str_field_getter!(a, sn);
+// }
