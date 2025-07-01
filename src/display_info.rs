@@ -14,15 +14,15 @@ pub enum DisplayPath {
 }
 
 #[repr(transparent)]
-pub struct DisplayInfo(*mut sys::DDCA_Display_Info);
+pub struct DisplayInfo(sys::DDCA_Display_Info);
 
 impl DisplayInfo {
     pub fn display_no(&self) -> i32 {
-        unsafe { *self.0 }.dispno as i32
+        self.0.dispno as i32
     }
 
     pub fn path(&self) -> DisplayPath {
-        let p = unsafe { *self.0 }.path;
+        let p = self.0.path;
         match p.io_mode {
             sys::DDCA_IO_Mode::DDCA_IO_I2C => DisplayPath::I2C {
                 bus: unsafe { p.path.i2c_busno },
@@ -31,6 +31,7 @@ impl DisplayInfo {
                 // TODO should this include the usb_devuce/bus fields of the display_info?
                 hiddev_devno: unsafe { p.path.hiddev_devno },
             },
+            #[allow(unreachable_patterns)]
             _ => panic!("Unknown IO mode {0:?}", p.io_mode),
         }
     }
@@ -44,25 +45,17 @@ impl DisplayInfo {
     str_field_getter!(serial_number, sn);
 
     pub fn product_code(&self) -> u16 {
-        unsafe { *self.0 }.product_code
+        self.0.product_code
     }
 
     // TODO expose edid_bytes?
 
     pub fn vcp_version(&self) -> MccsVersion {
-        unsafe { *self.0 }.vcp_version
+        self.0.vcp_version
     }
 
     pub(crate) fn dref(&self) -> crate::display::SysDisplayRef {
-        SysDisplayRef(unsafe { *self.0 }.dref)
-    }
-}
-
-impl Drop for DisplayInfo {
-    fn drop(&mut self) {
-        unsafe {
-            sys::ddca_free_display_info(self.0);
-        }
+        SysDisplayRef(self.0.dref)
     }
 }
 

@@ -1,4 +1,4 @@
-use std::{ptr};
+use std::ptr;
 
 use crate::DdcError;
 use crate::DisplayInfo;

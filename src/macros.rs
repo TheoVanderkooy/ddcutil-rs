@@ -20,7 +20,7 @@ macro_rules! str_field_getter {
         pub fn $fn_name<'a>(&'a self) -> &'a str {
             // interpret the bytes as &[u8]
             let buf =
-                unsafe { &*(&(*self.0).$field as *const [::std::os::raw::c_char] as *const [u8]) };
+                unsafe { &*(&self.0.$field as *const [::std::os::raw::c_char] as *const [u8]) };
 
             // find the length: position of first null terminator OR full length if none
             let end = buf.iter().position(|&c| c == 0x0).unwrap_or(buf.len());

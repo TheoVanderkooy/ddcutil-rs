@@ -61,6 +61,5 @@ fn test_testing2() {
         println!("build flags: {flags:?}");
     }
 
-
     // panic!(">>>>> see output")
 }
