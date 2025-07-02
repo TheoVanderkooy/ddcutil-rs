@@ -8,6 +8,7 @@ use crate::sys;
 
 /// Location of the display.
 #[non_exhaustive]
+#[derive(Debug, PartialEq, Eq)]
 pub enum DisplayPath {
     I2C { bus: i32 },
     USB { hiddev_devno: i32 },

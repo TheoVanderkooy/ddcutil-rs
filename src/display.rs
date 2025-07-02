@@ -1,8 +1,10 @@
+use std::mem::MaybeUninit;
 use std::ptr;
 
 use crate::DdcError;
 use crate::DisplayInfo;
 use crate::Result;
+use crate::sys::DDCA_Non_Table_Vcp_Value;
 use crate::sys::{self};
 
 pub enum DisplayIdentifier<'a> {
@@ -39,6 +41,7 @@ impl Drop for SysDisplayIdentifier {
     }
 }
 
+#[derive(Debug)]
 pub struct Display {
     // ...
     dh: sys::DDCA_Display_Handle,
@@ -100,8 +103,39 @@ impl Display {
     }
 
     /// Construct & open a display from the provided display info
-    pub fn from_display_info(info: DisplayInfo) -> Result<Self> {
+    pub fn from_display_info(info: &DisplayInfo) -> Result<Self> {
         Self::from_ref(info.dref())
+    }
+
+// TODO generalize the get/set VCP logic:
+//   - table vs non-table values
+//   - feature codes?
+//   - improve return value: contains "max" and "set" values (hi/lo)
+
+    /// Get a 16-bit VCP value.
+    pub fn get_vcp_value(&self, code: sys::DDCA_Vcp_Feature_Code) -> Result<(u16, u16)> {
+        let mut val: MaybeUninit<DDCA_Non_Table_Vcp_Value> = MaybeUninit::uninit();
+
+        unsafe {
+            let rc = sys::ddca_get_non_table_vcp_value(self.dh, code, val.as_mut_ptr());
+            DdcError::check(rc)?;
+        }
+
+        let val = unsafe { val.assume_init() };
+
+        // mh/ml are hi/lo bits of max value, sh/sl are hi/lo bits of current value
+        Ok((u16::from_be_bytes([val.mh, val.ml]), u16::from_be_bytes([val.sh, val.sl]), ))
+    }
+
+    /// Set a 16-bit VCP value
+    pub fn set_vcp_value(&self, code: sys::DDCA_Vcp_Feature_Code, value: u16) -> Result<()> {
+        let [hi, lo] = value.to_be_bytes();
+
+        unsafe {
+            let rc = sys::ddca_set_non_table_vcp_value(self.dh, code, hi, lo);
+            DdcError::check(rc)?;
+        }
+        Ok(())
     }
 }
 

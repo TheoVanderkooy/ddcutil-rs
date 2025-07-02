@@ -7,7 +7,7 @@
 /// ```
 /// # use libddcutil2::str_field_getter;
 /// struct Inner{ str_field: [::std::os::raw::c_char; 10] }
-/// struct Wrapper(*mut Inner);
+/// struct Wrapper(Inner);
 ///
 /// impl Wrapper {
 ///     // generates `get_example(&self) -> &str` for Inner::str_field
