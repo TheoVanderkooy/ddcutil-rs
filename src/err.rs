@@ -1,6 +1,6 @@
 use crate::sys;
 
-use std::{ffi::CStr, fmt::Display, ptr::null_mut};
+use std::{borrow::Cow, ffi::CStr, fmt::Display, ptr::null_mut};
 
 /// Results from this crate always use `DdcError` as errors
 pub type Result<T> = std::result::Result<T, DdcError>;
@@ -55,11 +55,7 @@ impl DdcError {
 
     /// Get the detail causes as a slice of pointers to the detail struct.
     fn detail_causes(&self) -> Option<&[*mut sys::DDCA_Error_Detail]> {
-        if self.detail.is_null() {
-            return None;
-        }
-
-        let det = unsafe { &(*self.detail) };
+        let det = unsafe { self.detail.as_ref()? };
 
         if det.cause_ct == 0 {
             return None;
@@ -91,26 +87,40 @@ impl Display for DdcError {
         )?;
 
         // Details if present
-        if !self.detail.is_null() {
-            let det_desc = unsafe { CStr::from_ptr((*self.detail).detail) };
-            writeln!(f, "  Detail: {0}", det_desc.to_string_lossy())?;
+        if self.detail.is_null() {
+            return Ok(());
+        }
 
-            // Causes if present in the details
-            if let Some(causes) = self.detail_causes() {
-                writeln!(f, "  Caused by:")?;
-                for c in causes {
-                    unsafe {
-                        let c = &(**c);
-                        let c_rc = c.status_code;
-                        writeln!(
-                            f,
-                            "    {0} ({1}): {2}   Detail: {3}",
-                            CStr::from_ptr(sys::ddca_rc_name(c_rc)).to_string_lossy(),
-                            c_rc,
-                            CStr::from_ptr(sys::ddca_rc_desc(c_rc)).to_string_lossy(),
-                            CStr::from_ptr(c.detail).to_string_lossy(),
-                        )?;
-                    }
+        let det_desc = if let Some(x) = unsafe { (*self.detail).detail.as_ref() } {
+            unsafe { CStr::from_ptr(x) }.to_string_lossy()
+        } else {
+            Cow::Borrowed("n/a")
+        };
+
+        writeln!(f, "  Detail: {0}", det_desc)?;
+
+        // Causes if present in the details
+        if let Some(causes) = self.detail_causes() {
+            writeln!(f, "  Caused by:")?;
+            for &c in causes {
+                if c.is_null() {
+                    continue;
+                }
+                unsafe {
+                    let c_rc = (*c).status_code;
+                    let det_desc = if let Some(x) = (*c).detail.as_ref() {
+                        CStr::from_ptr(x).to_string_lossy()
+                    } else {
+                        Cow::Borrowed("n/a")
+                    };
+                    writeln!(
+                        f,
+                        "    {0} ({1}): {2}   Detail: {3}",
+                        CStr::from_ptr(sys::ddca_rc_name(c_rc)).to_string_lossy(),
+                        c_rc,
+                        CStr::from_ptr(sys::ddca_rc_desc(c_rc)).to_string_lossy(),
+                        det_desc,
+                    )?;
                 }
             }
         }

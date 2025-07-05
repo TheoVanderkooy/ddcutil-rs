@@ -43,6 +43,10 @@
             cargo-watch
             rust-analyzer
 
+            # (ddcutil.overrideAttrs (x: {
+            #   configureFlags = (x.configureFlags or [])
+            #     ++ ["--enable-failisim" "--disable-usb"];
+            # }))
             ddcutil
             clang
             llvmPackages.bintools

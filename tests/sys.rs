@@ -1,12 +1,12 @@
 use libddcutil2::*;
-use std::{ffi::CStr, ptr};
+use std::{borrow::Cow, ffi::CStr, ptr};
 
 #[cfg(test)]
 #[test]
 // #[ignore]
 fn test_testing() {
     unsafe {
-        use std::mem::{MaybeUninit};
+        use std::mem::MaybeUninit;
 
         let feat = CStr::from_ptr(sys::ddca_get_feature_name(0x10))
             .to_str()
@@ -30,17 +30,15 @@ fn test_testing() {
             if (*r).is_null() {
                 break;
             }
-            println!("r: {0:?}  ref: {1:?}",r, *r);
+            println!("r: {0:?}  ref: {1:?}", r, *r);
             r = r.offset(1);
         }
 
-
-
         let mut dh = MaybeUninit::<sys::DDCA_Display_Handle>::zeroed().assume_init();
         let dh_ptr: *mut _ = &mut dh;
-        let rc = sys::ddca_open_display2(*refs, false, dh_ptr);
+        let rc = sys::ddca_open_display2(dref, false, dh_ptr);
         assert_eq!(rc, 0);
-// TODO why does this not work??
+        // TODO why does this not work??
         println!("Opened display!");
 
         // let mut dinfo = MaybeUninit::<sys::DDCA_Display_Info>::zeroed().assume_init();
@@ -49,7 +47,6 @@ fn test_testing() {
         // let rc = sys::ddca_get_display_info(dref, &mut dinfo_ptr);
         // assert_eq!(rc, 0);
 
-
         // let disp = Display::from_display_info(&*(dinfo_ptr as *mut DisplayInfo)).unwrap();
         // let val = disp.get_vcp_value(0x10).unwrap();
 
@@ -57,7 +54,6 @@ fn test_testing() {
 
         let rc = sys::ddca_get_non_table_vcp_value(dh, 0x10, &mut val);
         assert_eq!(rc, 0);
-
 
         println!("Value: {val:?}");
 
@@ -71,9 +67,11 @@ fn test_testing() {
 
 #[test]
 fn test_testing2() {
+    // let x = 100u16.to_be_bytes();
+    // println!("x={x:?}");
 
-    let x = 100u16.to_be_bytes();
+    println!("build flags = {0:?}", lib_build_flags());
+    println!("testing = {0}", Cow::Borrowed("n/a"));
 
-    println!("x={x:?}");
-    // panic!(">>>>> see output")
+    panic!(">>>>> see output")
 }

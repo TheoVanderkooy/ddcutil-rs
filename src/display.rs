@@ -107,10 +107,10 @@ impl Display {
         Self::from_ref(info.dref())
     }
 
-// TODO generalize the get/set VCP logic:
-//   - table vs non-table values
-//   - feature codes?
-//   - improve return value: contains "max" and "set" values (hi/lo)
+    // TODO generalize the get/set VCP logic:
+    //   - table vs non-table values
+    //   - feature codes?
+    //   - improve return value: contains "max" and "set" values (hi/lo)
 
     /// Get a 16-bit VCP value.
     pub fn get_vcp_value(&self, code: sys::DDCA_Vcp_Feature_Code) -> Result<(u16, u16)> {
@@ -124,7 +124,10 @@ impl Display {
         let val = unsafe { val.assume_init() };
 
         // mh/ml are hi/lo bits of max value, sh/sl are hi/lo bits of current value
-        Ok((u16::from_be_bytes([val.mh, val.ml]), u16::from_be_bytes([val.sh, val.sl]), ))
+        Ok((
+            u16::from_be_bytes([val.mh, val.ml]),
+            u16::from_be_bytes([val.sh, val.sl]),
+        ))
     }
 
     /// Set a 16-bit VCP value
