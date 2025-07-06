@@ -1,10 +1,15 @@
+use std::ffi::CStr;
 use std::mem::MaybeUninit;
 use std::ptr;
 
 use crate::DdcError;
 use crate::DisplayInfo;
+use crate::FeatureMetadata;
+use crate::MccsVersion;
 use crate::Result;
+use crate::capabilities::DisplayCapabilities;
 use crate::sys::DDCA_Non_Table_Vcp_Value;
+use crate::sys::ddca_parse_capabilities_string;
 use crate::sys::{self};
 
 pub enum DisplayIdentifier<'a> {
@@ -27,6 +32,24 @@ pub enum DisplayIdentifier<'a> {
 #[repr(transparent)]
 pub(crate) struct SysDisplayRef(pub(crate) sys::DDCA_Display_Ref);
 
+impl SysDisplayRef {
+    #[allow(dead_code)]
+    pub fn validate(&self, require_not_asleep: bool) -> Result<()> {
+        unsafe {
+            let rc = sys::ddca_validate_display_ref(self.0, require_not_asleep);
+            DdcError::check(rc)
+        }
+    }
+}
+
+impl std::fmt::Display for SysDisplayRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let repr = unsafe { CStr::from_ptr(sys::ddca_dref_repr(self.0)) };
+
+        write!(f, "{}", repr.to_string_lossy())
+    }
+}
+
 #[repr(transparent)]
 struct SysDisplayIdentifier(sys::DDCA_Display_Identifier);
 
@@ -41,9 +64,15 @@ impl Drop for SysDisplayIdentifier {
     }
 }
 
+impl std::fmt::Display for SysDisplayIdentifier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let repr = unsafe { CStr::from_ptr(sys::ddca_did_repr(self.0)) };
+        write!(f, "{}", repr.to_string_lossy())
+    }
+}
+
 #[derive(Debug)]
 pub struct Display {
-    // ...
     dh: sys::DDCA_Display_Handle,
 }
 
@@ -107,6 +136,54 @@ impl Display {
         Self::from_ref(info.dref())
     }
 
+    #[allow(dead_code)]
+    pub(crate) fn get_display_ref(&self) -> SysDisplayRef {
+        unsafe { SysDisplayRef(sys::ddca_display_ref_from_handle(self.dh)) }
+    }
+
+    pub fn get_capabilities(&self) -> Result<DisplayCapabilities> {
+        let mut cap_str = ptr::null_mut();
+        let mut cap_parsed = DisplayCapabilities(ptr::null_mut());
+
+        unsafe {
+            let rc = sys::ddca_get_capabilities_string(self.dh, &mut cap_str);
+            DdcError::check(rc)?;
+
+            let rc = ddca_parse_capabilities_string(cap_str, &mut cap_parsed.0);
+            DdcError::check(rc)?;
+        }
+
+        Ok(cap_parsed)
+    }
+
+    pub fn get_mccs_version(&self) -> Result<MccsVersion> {
+        unsafe {
+            let mut mccs_v = sys::DDCA_VSPEC_UNKNOWN;
+
+            let rc = sys::ddca_get_mccs_version_by_dh(self.dh, &mut mccs_v);
+            DdcError::check(rc)?;
+
+            Ok(mccs_v)
+        }
+    }
+
+    pub fn check_dfr(&self) -> Result<()> {
+        unsafe {
+            let rc = sys::ddca_dfr_check_by_dh(self.dh);
+            DdcError::check(rc)
+        }
+    }
+
+    pub fn get_feature_metadata(&self, code: u8) -> Result<FeatureMetadata> {
+        let mut fm = FeatureMetadata(ptr::null_mut());
+        unsafe {
+            let rc = sys::ddca_get_feature_metadata_by_dh(code, self.dh, true, &mut fm.0);
+            DdcError::check(rc)?;
+        }
+
+        Ok(fm)
+    }
+
     // TODO generalize the get/set VCP logic:
     //   - table vs non-table values
     //   - feature codes?
@@ -150,3 +227,5 @@ impl Drop for Display {
         }
     }
 }
+
+// TODO impl Display for Display with ddca_dh_repr?

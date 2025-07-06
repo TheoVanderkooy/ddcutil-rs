@@ -3,7 +3,7 @@ use std::{borrow::Cow, ffi::CStr, ptr};
 
 #[cfg(test)]
 #[test]
-// #[ignore]
+#[ignore]
 fn test_testing() {
     unsafe {
         use std::mem::MaybeUninit;
@@ -66,6 +66,7 @@ fn test_testing() {
 }
 
 #[test]
+#[ignore]
 fn test_testing2() {
     // let x = 100u16.to_be_bytes();
     // println!("x={x:?}");

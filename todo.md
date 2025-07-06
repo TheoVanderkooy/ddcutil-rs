@@ -1,4 +1,8 @@
 
+## object model changes
+ - "display reference" type for things that can be done with non-opened displays
+ - "open display" for display handles
+
 
 
 /*
@@ -44,17 +48,11 @@ Enums:
 /*
 Functions TODO still: (excluding free_xyz functions)
 
-ddca_init (deprecated use v2 if 2.1+)
-ddca_init2  (2.1+ ... can we dynamically enable it? (or disable))
-
-ddca_enable_verify
-ddca_is_verify_enabled
-ddca_set_sleep_multiplier (deprecated)
-ddca_get_sleep_multiplier (deprecated)
+// TODO these need drefs, figure out where these should go..
 ddca_set_display_sleep_multiplier
 ddca_get_current_display_sleep_multiplier
-ddca_enable_dynamic_sleep (2.1+)
-ddca_is_dynamic_sleep_enabled (2.1+)
+
+// These take FILEs
 ddca_set_fout
 ddca_set_fout_to_default
 ddca_set_ferr
@@ -62,7 +60,6 @@ ddca_set_ferr_to_default
 
 ddca_start_capture
 ddca_end_capture
-
 ddca_get_output_level
 ddca_set_output_level
 ddca_output_level_name
@@ -74,41 +71,27 @@ ddca_report_locks
 ddca_get_display_refs
 ddca_get_display_info
 
+// invalidates existing display handles -- not safe to expose directly
 ddca_redetect_displays
 
-ddca_did_repr
-
-ddca_validate_display_ref (2.1+)
-ddca_dref_repr
 ddca_dbgrpt_display_ref
 
 ddca_dh_repr
-ddca_display_ref_from_handle
 
-ddca_get_capabilities_string
-ddca_parse_capabilities_string  ddca_free_parsed_capabilities
 
-ddca_feature_list_from_capabilities
-ddca_get_mccs_version_by_dh
 
-ddca_enable_udf
-ddca_is_udf_enabled
+
+
+// to-implement after making display reference a proper type
 ddca_dfr_check_by_dref
-ddca_dfr_check_by_dh
-
-ddca_get_feature_metadata_by_vspec
 ddca_get_feature_metadata_by_dref
-ddca_get_feature_metadata_by_dh
 
-ddca_get_feature_name
-ddca_get_simple_nc_feature_value_name_by_table
+
 ddca_dbgrpt_feature_metadata
 ddca_report_display_by_dref
 ddca_feature_list_id_name
 ddca_get_feature_list_by_dref
-...
-ddca_feature_list_contains
-...
+
 
 ddca_get_non_table_vcp_value
 ddca_get_table_vcp_value
