@@ -14,7 +14,7 @@ mod macros;
 pub mod sys;
 
 // re-exports of wrapper types & functions from other submodules
-pub use display::{Display, DisplayIdentifier};
+pub use display::{Display, DisplayIdentifier, TableValue};
 pub use display_info::{DisplayInfo, DisplayInfoList, DisplayPath, get_display_info_list};
 pub use err::{DdcError, Result};
 pub use feature_metadata::{FeatureMetadata, FeatureValue};

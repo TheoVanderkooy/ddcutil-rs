@@ -1,6 +1,7 @@
 use std::ffi::CStr;
 use std::mem::MaybeUninit;
 use std::ptr;
+use std::ptr::slice_from_raw_parts;
 
 use crate::DdcError;
 use crate::DisplayInfo;
@@ -27,6 +28,30 @@ pub enum DisplayIdentifier<'a> {
         device: i32,
     },
     UsbHid(i32),
+}
+
+#[repr(transparent)]
+pub struct TableValue(*mut sys::DDCA_Table_Vcp_Value);
+
+impl TableValue {
+    pub fn as_slice(&self) -> &[u8] {
+        unsafe {
+            let len = (*self.0).bytect as usize;
+            if len == 0 {
+                &[]
+            } else {
+                &*slice_from_raw_parts((*self.0).bytes, (*self.0).bytect as usize)
+            }
+        }
+    }
+}
+
+impl Drop for TableValue {
+    fn drop(&mut self) {
+        unsafe {
+            sys::ddca_free_table_vcp_value(self.0);
+        }
+    }
 }
 
 #[repr(transparent)]
@@ -184,12 +209,9 @@ impl Display {
         Ok(fm)
     }
 
-    // TODO generalize the get/set VCP logic:
-    //   - table vs non-table values
-    //   - feature codes?
-    //   - improve return value: contains "max" and "set" values (hi/lo)
-
     /// Get a 16-bit VCP value.
+    ///
+    /// Return value is a pair of (max value, current value)
     pub fn get_vcp_value(&self, code: sys::DDCA_Vcp_Feature_Code) -> Result<(u16, u16)> {
         let mut val: MaybeUninit<DDCA_Non_Table_Vcp_Value> = MaybeUninit::uninit();
 
@@ -215,6 +237,33 @@ impl Display {
             let rc = sys::ddca_set_non_table_vcp_value(self.dh, code, hi, lo);
             DdcError::check(rc)?;
         }
+        Ok(())
+    }
+
+    /// Get a table value.
+    pub fn get_vcp_table_value(&self, code: sys::DDCA_Vcp_Feature_Code) -> Result<TableValue> {
+        let mut ret = TableValue(ptr::null_mut());
+
+        unsafe {
+            let rc = sys::ddca_get_table_vcp_value(self.dh, code, &mut ret.0);
+            DdcError::check(rc)?;
+        }
+
+        Ok(ret)
+    }
+
+    /// Set a table value.
+    pub fn set_vcp_table_value(&self, code: sys::DDCA_Vcp_Feature_Code, val: &[u8]) -> Result<()> {
+        let mut new_val = sys::DDCA_Table_Vcp_Value {
+            bytect: val.len() as u16,
+            bytes: val.as_ptr() as *mut u8,
+        };
+
+        unsafe {
+            let rc = sys::ddca_set_table_vcp_value(self.dh, code, &mut new_val);
+            DdcError::check(rc)?;
+        }
+
         Ok(())
     }
 }
