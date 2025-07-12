@@ -29,15 +29,11 @@ impl FeatureSet {
     }
 
     pub fn contains(&self, code: u8) -> bool {
-        unsafe {
-            sys::ddca_feature_list_contains(self.0, code)
-        }
+        unsafe { sys::ddca_feature_list_contains(self.0, code) }
     }
 
     pub fn count(&self) -> i32 {
-        unsafe {
-            sys::ddca_feature_list_count(self.0)
-        }
+        unsafe { sys::ddca_feature_list_count(self.0) }
     }
 
     // TODO ddca_feature_list_string

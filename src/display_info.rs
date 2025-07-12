@@ -1,4 +1,5 @@
 use core::str;
+use std::slice::SliceIndex;
 
 use crate::MccsVersion;
 use crate::display::SysDisplayRef;
@@ -72,6 +73,14 @@ impl DisplayInfoList {
                 (*self.0).ct as usize,
             )
         }
+    }
+}
+
+impl<I: SliceIndex<[DisplayInfo]>> std::ops::Index<I> for DisplayInfoList {
+    type Output = <I as SliceIndex<[DisplayInfo]>>::Output;
+
+    fn index(&self, index: I) -> &Self::Output {
+        &self.as_slice()[index]
     }
 }
 

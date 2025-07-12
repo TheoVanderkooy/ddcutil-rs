@@ -14,7 +14,7 @@ mod macros;
 pub mod sys;
 
 // re-exports of wrapper types & functions from other submodules
-pub use display::Display;
+pub use display::{Display, DisplayIdentifier};
 pub use display_info::{DisplayInfo, DisplayInfoList, DisplayPath, get_display_info_list};
 pub use err::{DdcError, Result};
 pub use feature_metadata::{FeatureMetadata, FeatureValue};
@@ -25,6 +25,12 @@ pub type DdcutilVersion = sys::DDCA_Ddcutil_Version_Spec;
 
 // Imports
 use std::{ffi::CStr, ptr};
+
+impl std::fmt::Display for MccsVersion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{0}.{1}", self.major, self.minor)
+    }
+}
 
 // misc utility functions
 

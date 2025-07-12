@@ -17,9 +17,9 @@ pub enum DisplayIdentifier<'a> {
     I2cBus(i32),
     /// At least one of manufacturer, model, serial must be non-none
     SerialNumber {
-        manufacturer: Option<&'a str>,
-        model: Option<&'a str>,
-        serial: Option<&'a str>,
+        manufacturer: Option<&'a CStr>,
+        model: Option<&'a CStr>,
+        serial: Option<&'a CStr>,
     },
     // TODO EDID?
     UsbDevice {
