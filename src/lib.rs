@@ -19,6 +19,9 @@ pub use display_info::{DisplayInfo, DisplayInfoList, DisplayPath, get_display_in
 pub use err::{DdcError, Result};
 pub use feature_metadata::{FeatureMetadata, FeatureValue};
 
+#[cfg(feature = "anyhow")]
+pub use err::ConvertToAnyhow;
+
 // Re-exports of trivial bindgen structs that don't need wrapping
 pub type MccsVersion = sys::DDCA_MCCS_Version_Spec;
 pub type DdcutilVersion = sys::DDCA_Ddcutil_Version_Spec;

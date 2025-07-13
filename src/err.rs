@@ -129,17 +129,59 @@ impl Display for DdcError {
     }
 }
 
-// impl core::fmt::Debug for DdcError {
-//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-//         f.debug_struct("DdcError")
-//             .field("rc", &self.rc)
-//             .field("name", &self.name)
-//             .field("desc", &self.desc)
-//             .field("detail", &self.detail)
-//                  // TODO better debug impl for detail?
-//             .finish()
-//         // todo!()
-//     }
-// }
-
 impl std::error::Error for DdcError {}
+
+/// Custom way to convert DdcError to anyhow error.
+///
+/// This is needed because these errors are not Send/Sync,
+/// so this can't be implemented automatically by anyhow,
+/// but also we can't implement From<DdcError> for anyhow
+/// because it could provide an implementation in the future...
+#[cfg(feature = "anyhow")]
+pub trait ConvertToAnyhow {
+    type Output;
+
+    fn anyhow(self) -> Self::Output;
+}
+
+#[cfg(feature = "anyhow")]
+impl ConvertToAnyhow for DdcError {
+    type Output = anyhow::Error;
+
+    fn anyhow(self) -> anyhow::Error {
+        anyhow::anyhow!("{}", self)
+    }
+}
+
+#[cfg(feature = "anyhow")]
+impl<T> ConvertToAnyhow for std::result::Result<T, DdcError> {
+    type Output = std::result::Result<T, anyhow::Error>;
+
+    fn anyhow(self) -> Self::Output {
+        self.map_err(|e| e.anyhow())
+    }
+}
+
+#[cfg(feature = "anyhow")]
+mod test {
+    #[cfg(test)]
+    #[test]
+    fn test_to_anyhow() {
+        use crate::*;
+
+        // Make sure the "anyhow" conversion for result compiles
+        fn to_anyhow() -> anyhow::Result<()> {
+            use crate::err::ConvertToAnyhow;
+
+            Err(DdcError {
+                rc: -1,
+                name: c"test",
+                desc: c"error for testing",
+                detail: ptr::null_mut(),
+            })
+            .anyhow()
+        }
+
+        assert!(to_anyhow().is_err());
+    }
+}

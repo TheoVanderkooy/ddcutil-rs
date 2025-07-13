@@ -3,6 +3,14 @@ name = "libddcutil2"
 version = "0.1.1"
 edition = "2024"
 
+[features]
+default = []
+# default = ["anyhow"]
+anyhow = ["dep:anyhow"]
+
 [build-dependencies]
 bindgen = "0.72.0"
 pkg-config = "0.3.32"
+
+[dependencies]
+anyhow = { version = "1.0.98", optional = true }
